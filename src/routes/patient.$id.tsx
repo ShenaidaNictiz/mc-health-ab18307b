@@ -418,9 +418,10 @@ function PatientDetailPage() {
                 {medsQuery.data?.map((m) => (
                   <TableRow key={m.id}>
                     <TableCell className="font-medium">
-                      {m.medicationCodeableConcept
-                        ? conceptText(m.medicationCodeableConcept)
-                        : (m.medicationReference?.display ?? "—")}
+                      {m.medicationDisplay ??
+                        (m.medicationCodeableConcept
+                          ? conceptText(m.medicationCodeableConcept)
+                          : (m.medicationReference?.display ?? "—"))}
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="capitalize">
