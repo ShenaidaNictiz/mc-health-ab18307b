@@ -178,7 +178,7 @@ export const VITAL_CODES = {
 } as const;
 
 export async function getVitals(id: string): Promise<FhirObservation[]> {
-  const codes = "8867-4,8310-5,9279-1,59408-5,8302-2,29463-7,39156-5,55284-4";
+  const codes = "8867-4,8310-5,9279-1,59408-5,8302-2,29463-7,39156-5,55284-4,85354-9,8480-6,8462-4";
   const params = new URLSearchParams({
     subject: `Patient/${id}`,
     code: codes,
