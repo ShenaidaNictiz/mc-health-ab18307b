@@ -132,13 +132,22 @@ export interface FhirCondition {
   clinicalStatus?: CodeableConcept;
 }
 
+export interface FhirMedication {
+  resourceType: "Medication";
+  id?: string;
+  code?: CodeableConcept;
+}
+
 export interface FhirMedicationRequest {
   resourceType: "MedicationRequest";
   id?: string;
   status?: string;
   authoredOn?: string;
   medicationCodeableConcept?: CodeableConcept;
-  medicationReference?: { display?: string };
+  medicationReference?: { display?: string; reference?: string };
+  contained?: { resourceType?: string; id?: string; code?: CodeableConcept }[];
+  /** Resolved display name, filled in by getMedications(). */
+  medicationDisplay?: string;
 }
 
 interface AnyBundle<T> {
