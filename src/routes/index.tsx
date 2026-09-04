@@ -196,7 +196,10 @@ function PatientsPage() {
                   <TableRow key={patient.id}>
                     <TableCell className="font-medium">{fullName(patient)}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="capitalize">
+                      <Badge
+                        variant="secondary"
+                        className={cn("capitalize", genderBadgeClass(patient.gender))}
+                      >
                         {patient.gender ?? "unknown"}
                       </Badge>
                     </TableCell>
