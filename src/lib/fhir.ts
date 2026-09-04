@@ -132,13 +132,22 @@ export interface FhirCondition {
   clinicalStatus?: CodeableConcept;
 }
 
+export interface FhirMedication {
+  resourceType: "Medication";
+  id?: string;
+  code?: CodeableConcept;
+}
+
 export interface FhirMedicationRequest {
   resourceType: "MedicationRequest";
   id?: string;
   status?: string;
   authoredOn?: string;
   medicationCodeableConcept?: CodeableConcept;
-  medicationReference?: { display?: string };
+  medicationReference?: { display?: string; reference?: string };
+  contained?: { resourceType?: string; id?: string; code?: CodeableConcept }[];
+  /** Resolved display name, filled in by getMedications(). */
+  medicationDisplay?: string;
 }
 
 interface AnyBundle<T> {
@@ -188,10 +197,51 @@ export async function getConditions(id: string): Promise<FhirCondition[]> {
 }
 
 export async function getMedications(id: string): Promise<FhirMedicationRequest[]> {
-  const bundle = await request<AnyBundle<FhirMedicationRequest>>(
-    `MedicationRequest?patient=${encodeURIComponent(id)}&_count=200`,
+  const bundle = await request<AnyBundle<FhirMedicationRequest | FhirMedication>>(
+    `MedicationRequest?patient=${encodeURIComponent(id)}&_count=200&_include=MedicationRequest:medication`,
   );
-  return bundleEntries(bundle, "MedicationRequest");
+  const requests = bundleEntries(bundle as AnyBundle<FhirMedicationRequest>, "MedicationRequest");
+  const included = bundleEntries(bundle as AnyBundle<FhirMedication>, "Medication");
+
+  const byId = new Map<string, FhirMedication>();
+  for (const m of included) if (m.id) byId.set(m.id, m);
+
+  // Some servers ignore _include; fetch any still-unresolved Medication resources directly.
+  const missing = [
+    ...new Set(
+      requests
+        .map((r) => r.medicationReference?.reference)
+        .filter((ref): ref is string => !!ref && !ref.startsWith("#"))
+        .map((ref) => ref.split("/").pop() ?? "")
+        .filter((mid) => mid && !byId.has(mid)),
+    ),
+  ];
+  if (missing.length) {
+    const fetched = await Promise.all(
+      missing.map((mid) =>
+        request<FhirMedication>(`Medication/${encodeURIComponent(mid)}`).catch(() => null),
+      ),
+    );
+    for (const m of fetched) if (m?.id) byId.set(m.id, m);
+  }
+
+  return requests.map((r) => ({ ...r, medicationDisplay: resolveMedicationName(r, byId) }));
+}
+
+function resolveMedicationName(
+  r: FhirMedicationRequest,
+  byId: Map<string, FhirMedication>,
+): string {
+  if (r.medicationCodeableConcept) return conceptText(r.medicationCodeableConcept);
+  const ref = r.medicationReference?.reference ?? "";
+  if (ref.startsWith("#")) {
+    const c = r.contained?.find((x) => x.id === ref.slice(1));
+    if (c?.code) return conceptText(c.code);
+  }
+  const mid = ref.split("/").pop();
+  const med = mid ? byId.get(mid) : undefined;
+  if (med?.code) return conceptText(med.code);
+  return r.medicationReference?.display ?? "—";
 }
 
 export function conceptText(c?: CodeableConcept): string {
