@@ -22,7 +22,7 @@ async function proxy({ request, params }: { request: Request; params: { _splat?:
     Accept: FHIR_JSON,
   };
   const method = request.method.toUpperCase();
-  let body: string | undefined;
+  let body: string | null = null;
   if (method !== "GET" && method !== "HEAD") {
     body = await request.text();
     headers["Content-Type"] = FHIR_JSON;
