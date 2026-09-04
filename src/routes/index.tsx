@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Pencil, Plus, Search, Stethoscope } from "lucide-react";
@@ -72,6 +72,7 @@ function genderBadgeClass(gender?: string) {
 
 function PatientsPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
   const [editing, setEditing] = useState<FhirPatient | null>(null);
@@ -194,8 +195,18 @@ function PatientsPage() {
 
               {!patientsQuery.isPending &&
                 patients.map((patient) => (
-                  <TableRow key={patient.id}>
-                    <TableCell className="font-medium">{fullName(patient)}</TableCell>
+                  <TableRow
+                    key={patient.id}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      if (patient.id) navigate({ to: "/patient/$id", params: { id: patient.id } });
+                    }}
+                  >
+                    <TableCell className="font-medium">
+                      <span className="underline-offset-4 hover:underline">
+                        {fullName(patient)}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant="secondary"
@@ -209,7 +220,8 @@ function PatientsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setEditing(patient);
                           setFormOpen(true);
                         }}
