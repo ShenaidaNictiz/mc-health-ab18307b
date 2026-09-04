@@ -194,8 +194,18 @@ function PatientsPage() {
 
               {!patientsQuery.isPending &&
                 patients.map((patient) => (
-                  <TableRow key={patient.id}>
-                    <TableCell className="font-medium">{fullName(patient)}</TableCell>
+                  <TableRow
+                    key={patient.id}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      if (patient.id) navigate({ to: "/patient/$id", params: { id: patient.id } });
+                    }}
+                  >
+                    <TableCell className="font-medium">
+                      <span className="underline-offset-4 hover:underline">
+                        {fullName(patient)}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant="secondary"
@@ -209,7 +219,8 @@ function PatientsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setEditing(patient);
                           setFormOpen(true);
                         }}
