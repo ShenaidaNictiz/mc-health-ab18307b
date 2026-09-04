@@ -274,11 +274,11 @@ function PatientDetailPage() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Gender</p>
-                <p className="mt-1">
+                <div className="mt-1">
                   <Badge variant="secondary" className="capitalize">
                     {patient.gender ?? "unknown"}
                   </Badge>
-                </p>
+                </div>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
