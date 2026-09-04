@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Pencil, Plus, Search, Stethoscope } from "lucide-react";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +57,17 @@ function formatDate(value?: string) {
   return Number.isNaN(d.getTime())
     ? value
     : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+function genderBadgeClass(gender?: string) {
+  switch (gender) {
+    case "male":
+      return "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-950 dark:text-sky-300 dark:border-sky-900";
+    case "female":
+      return "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-900";
+    default:
+      return "";
+  }
 }
 
 function PatientsPage() {
@@ -185,7 +197,10 @@ function PatientsPage() {
                   <TableRow key={patient.id}>
                     <TableCell className="font-medium">{fullName(patient)}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="capitalize">
+                      <Badge
+                        variant="secondary"
+                        className={cn("capitalize", genderBadgeClass(patient.gender))}
+                      >
                         {patient.gender ?? "unknown"}
                       </Badge>
                     </TableCell>
