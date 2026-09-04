@@ -72,6 +72,7 @@ function genderBadgeClass(gender?: string) {
 
 function PatientsPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
   const [editing, setEditing] = useState<FhirPatient | null>(null);
