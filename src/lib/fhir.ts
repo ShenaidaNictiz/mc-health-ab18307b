@@ -173,6 +173,7 @@ export const VITAL_CODES = {
   height: "8302-2",
   weight: "29463-7",
   bmi: "39156-5",
+  bloodPressure: "85354-9",
   systolic: "8480-6",
   diastolic: "8462-4",
 } as const;
