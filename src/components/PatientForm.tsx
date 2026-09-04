@@ -48,7 +48,7 @@ export function PatientForm({
 }: {
   open: boolean;
   mode: "create" | "edit";
-  initialValues?: PatientFormValues;
+  initialValues?: PatientFormValues | undefined;
   submitting: boolean;
   onCancel: () => void;
   onSubmit: (values: PatientFormValues) => void;
