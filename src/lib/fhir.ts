@@ -205,8 +205,8 @@ export function observationDate(o: FhirObservation): string {
 export interface VitalPoint {
   date: string;
   value: number;
-  value2?: number;
-  unit?: string;
+  value2?: number | undefined;
+  unit?: string | undefined;
 }
 
 /** Extract time series for a LOINC code, checking both the observation code and its components. */
