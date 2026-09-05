@@ -292,3 +292,22 @@ export function bloodPressureSeries(observations: FhirObservation[]): VitalPoint
   }
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
+
+/* ---------- Service requests (ambulance handover) ---------- */
+
+export interface FhirServiceRequest {
+  resourceType: "ServiceRequest";
+  id?: string;
+  status?: string;
+  intent?: string;
+  code?: CodeableConcept;
+  authoredOn?: string;
+  occurrenceDateTime?: string;
+}
+
+export async function getServiceRequests(id: string): Promise<FhirServiceRequest[]> {
+  const bundle = await request<AnyBundle<FhirServiceRequest>>(
+    `ServiceRequest?patient=${encodeURIComponent(id)}&_count=200`,
+  );
+  return bundleEntries(bundle, "ServiceRequest");
+}

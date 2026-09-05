@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ArrowLeft, BarChart3, TableIcon, Stethoscope } from "lucide-react";
+import { AlertCircle, Ambulance, ArrowLeft, BarChart3, TableIcon, Stethoscope } from "lucide-react";
 import {
   CartesianGrid,
   Line,
@@ -32,6 +32,7 @@ import {
   getConditions,
   getMedications,
   getPatient,
+  getServiceRequests,
   getVitals,
   seriesFor,
   VITAL_CODES,
@@ -218,6 +219,13 @@ function PatientDetailPage() {
     queryFn: () => getMedications(id),
     retry: false,
   });
+  const serviceRequestsQuery = useQuery({
+    queryKey: ["serviceRequests", id],
+    queryFn: () => getServiceRequests(id),
+    retry: false,
+  });
+  const hasServiceRequest = (serviceRequestsQuery.data ?? []).length > 0;
+
 
   const obs = vitalsQuery.data ?? [];
   const vitals: VitalDef[] = [
@@ -248,12 +256,23 @@ function PatientDetailPage() {
               <p className="text-sm text-muted-foreground">Patient record from your FHIR R4 server</p>
             </div>
           </div>
-          <Button variant="outline" asChild>
-            <Link to="/">
-              <ArrowLeft className="size-4" />
-              Back to list
-            </Link>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {hasServiceRequest && (
+              <Button asChild>
+                <Link to="/ambulance/patient/$id" params={{ id }}>
+                  <Ambulance className="size-4" />
+                  Ambulance
+                </Link>
+              </Button>
+            )}
+            <Button variant="outline" asChild>
+              <Link to="/">
+                <ArrowLeft className="size-4" />
+                Back to list
+              </Link>
+            </Button>
+          </div>
+
         </div>
       </header>
 
