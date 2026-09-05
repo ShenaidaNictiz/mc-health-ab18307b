@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ArrowLeft, BarChart3, TableIcon, Stethoscope } from "lucide-react";
+import { AlertCircle, Ambulance, ArrowLeft, BarChart3, TableIcon, Stethoscope } from "lucide-react";
 import {
   CartesianGrid,
   Line,
@@ -32,6 +32,7 @@ import {
   getConditions,
   getMedications,
   getPatient,
+  getServiceRequests,
   getVitals,
   seriesFor,
   VITAL_CODES,
