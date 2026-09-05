@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, Pencil, Plus, Search, Stethoscope } from "lucide-react";
+import { AlertCircle, Ambulance, Pencil, Plus, Search, Stethoscope } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -19,8 +19,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PatientForm } from "@/components/PatientForm";
+import { Link } from "@tanstack/react-router";
 import {
   createPatient,
+  getPatientsWithServiceRequests,
   fullName,
   searchPatients,
   toFormValues,
@@ -108,6 +110,15 @@ function PatientsPage() {
   });
 
   const patients = patientsQuery.data ?? [];
+  const patientIds = patients.map((p) => p.id).filter((pid): pid is string => !!pid);
+
+  const ambulanceQuery = useQuery({
+    queryKey: ["serviceRequestPatients", patientIds],
+    queryFn: () => getPatientsWithServiceRequests(patientIds),
+    enabled: patientIds.length > 0,
+    retry: false,
+  });
+  const ambulancePatients = ambulanceQuery.data;
 
   return (
     <main className="min-h-screen bg-background">
@@ -171,6 +182,7 @@ function PatientsPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Gender</TableHead>
                 <TableHead>Date of birth</TableHead>
+                <TableHead>Ambulance</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -178,7 +190,7 @@ function PatientsPage() {
               {patientsQuery.isPending &&
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 4 }).map((__, j) => (
+                    {Array.from({ length: 5 }).map((__, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-4 w-28" />
                       </TableCell>
@@ -188,7 +200,7 @@ function PatientsPage() {
 
               {!patientsQuery.isPending && !patientsQuery.isError && patients.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="py-10 text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
                     No patients found.
                   </TableCell>
                 </TableRow>
@@ -217,6 +229,18 @@ function PatientsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>{formatDate(patient.birthDate)}</TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      {patient.id && ambulancePatients?.has(patient.id) ? (
+                        <Button size="sm" asChild>
+                          <Link to="/ambulance/patient/$id" params={{ id: patient.id }}>
+                            <Ambulance className="size-3.5" />
+                            Ambulance
+                          </Link>
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="outline"
