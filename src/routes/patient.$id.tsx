@@ -218,6 +218,13 @@ function PatientDetailPage() {
     queryFn: () => getMedications(id),
     retry: false,
   });
+  const serviceRequestsQuery = useQuery({
+    queryKey: ["serviceRequests", id],
+    queryFn: () => getServiceRequests(id),
+    retry: false,
+  });
+  const hasServiceRequest = (serviceRequestsQuery.data ?? []).length > 0;
+
 
   const obs = vitalsQuery.data ?? [];
   const vitals: VitalDef[] = [

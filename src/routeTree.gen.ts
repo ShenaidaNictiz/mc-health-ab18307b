@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PatientIdRouteImport } from './routes/patient.$id'
+import { Route as AmbulancePatientIdRouteImport } from './routes/ambulance.patient.$id'
 import { Route as ApiFhirSplatRouteImport } from './routes/api/fhir/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const PatientIdRoute = PatientIdRouteImport.update({
   path: '/patient/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AmbulancePatientIdRoute = AmbulancePatientIdRouteImport.update({
+  id: '/ambulance/patient/$id',
+  path: '/ambulance/patient/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiFhirSplatRoute = ApiFhirSplatRouteImport.update({
   id: '/api/fhir/$',
   path: '/api/fhir/$',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/patient/$id': typeof PatientIdRoute
+  '/ambulance/patient/$id': typeof AmbulancePatientIdRoute
   '/api/fhir/$': typeof ApiFhirSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/patient/$id': typeof PatientIdRoute
+  '/ambulance/patient/$id': typeof AmbulancePatientIdRoute
   '/api/fhir/$': typeof ApiFhirSplatRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,38 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/patient/$id': typeof PatientIdRoute
+  '/ambulance/patient/$id': typeof AmbulancePatientIdRoute
   '/api/fhir/$': typeof ApiFhirSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sitemap.xml' | '/patient/$id' | '/api/fhir/$'
+  fullPaths:
+    | '/'
+    | '/sitemap.xml'
+    | '/patient/$id'
+    | '/ambulance/patient/$id'
+    | '/api/fhir/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sitemap.xml' | '/patient/$id' | '/api/fhir/$'
-  id: '__root__' | '/' | '/sitemap.xml' | '/patient/$id' | '/api/fhir/$'
+  to:
+    | '/'
+    | '/sitemap.xml'
+    | '/patient/$id'
+    | '/ambulance/patient/$id'
+    | '/api/fhir/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/sitemap.xml'
+    | '/patient/$id'
+    | '/ambulance/patient/$id'
+    | '/api/fhir/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   PatientIdRoute: typeof PatientIdRoute
+  AmbulancePatientIdRoute: typeof AmbulancePatientIdRoute
   ApiFhirSplatRoute: typeof ApiFhirSplatRoute
 }
 
@@ -92,6 +118,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PatientIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ambulance/patient/$id': {
+      id: '/ambulance/patient/$id'
+      path: '/ambulance/patient/$id'
+      fullPath: '/ambulance/patient/$id'
+      preLoaderRoute: typeof AmbulancePatientIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/fhir/$': {
       id: '/api/fhir/$'
       path: '/api/fhir/$'
@@ -106,6 +139,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   PatientIdRoute: PatientIdRoute,
+  AmbulancePatientIdRoute: AmbulancePatientIdRoute,
   ApiFhirSplatRoute: ApiFhirSplatRoute,
 }
 export const routeTree = rootRouteImport
