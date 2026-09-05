@@ -303,6 +303,7 @@ export interface FhirServiceRequest {
   code?: CodeableConcept;
   authoredOn?: string;
   occurrenceDateTime?: string;
+  subject?: { reference?: string };
 }
 
 export async function getServiceRequests(id: string): Promise<FhirServiceRequest[]> {
@@ -310,4 +311,17 @@ export async function getServiceRequests(id: string): Promise<FhirServiceRequest
     `ServiceRequest?patient=${encodeURIComponent(id)}&_count=200`,
   );
   return bundleEntries(bundle, "ServiceRequest");
+}
+
+/** Which of the given patient ids have at least one ServiceRequest. */
+export async function getPatientsWithServiceRequests(ids: string[]): Promise<Set<string>> {
+  const found = new Set<string>();
+  if (!ids.length) return found;
+  const params = new URLSearchParams({ patient: ids.join(","), _count: "500" });
+  const bundle = await request<AnyBundle<FhirServiceRequest>>(`ServiceRequest?${params.toString()}`);
+  for (const sr of bundleEntries(bundle, "ServiceRequest")) {
+    const pid = sr.subject?.reference?.split("/").pop();
+    if (pid) found.add(pid);
+  }
+  return found;
 }
