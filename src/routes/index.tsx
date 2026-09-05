@@ -30,6 +30,7 @@ import {
 } from "@/lib/fhir";
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Patient Registry — FHIR R4 Patient Management" },
