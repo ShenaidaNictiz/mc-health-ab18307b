@@ -39,6 +39,7 @@ import {
 } from "@/lib/fhir";
 
 export const Route = createFileRoute("/patient/$id")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Patient Details — Vitals, Conditions & Medications" },
