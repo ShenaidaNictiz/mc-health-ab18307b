@@ -416,21 +416,32 @@ function PatientDetailPage() {
                     </TableCell>
                   </TableRow>
                 )}
-                {medsQuery.data?.map((m) => (
-                  <TableRow key={m.id}>
-                    <TableCell className="font-medium">
-                      {m.medicationDisplay ??
-                        (m.medicationCodeableConcept
-                          ? conceptText(m.medicationCodeableConcept)
-                          : (m.medicationReference?.display ?? "—"))}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="capitalize">
-                        {m.status ?? "unknown"}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {[...(medsQuery.data ?? [])]
+                  .sort((a, b) => {
+                    const aStatus = (a.status ?? "").toLowerCase();
+                    const bStatus = (b.status ?? "").toLowerCase();
+                    if (aStatus === bStatus) return 0;
+                    if (aStatus === "active") return -1;
+                    if (bStatus === "active") return 1;
+                    if (!aStatus) return 1;
+                    if (!bStatus) return -1;
+                    return aStatus.localeCompare(bStatus);
+                  })
+                  .map((m) => (
+                    <TableRow key={m.id}>
+                      <TableCell className="font-medium">
+                        {m.medicationDisplay ??
+                          (m.medicationCodeableConcept
+                            ? conceptText(m.medicationCodeableConcept)
+                            : (m.medicationReference?.display ?? "—"))}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="capitalize">
+                          {m.status ?? "unknown"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </div>
