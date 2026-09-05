@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, Ambulance, ArrowLeft, BarChart3, TableIcon, Stethoscope } from "lucide-react";
+import { AlertCircle, ArrowLeft, BarChart3, TableIcon, Stethoscope } from "lucide-react";
 import {
   CartesianGrid,
   Line,
@@ -32,7 +32,6 @@ import {
   getConditions,
   getMedications,
   getPatient,
-  getServiceRequests,
   getVitals,
   seriesFor,
   VITAL_CODES,
@@ -219,12 +218,6 @@ function PatientDetailPage() {
     queryFn: () => getMedications(id),
     retry: false,
   });
-  const serviceRequestsQuery = useQuery({
-    queryKey: ["serviceRequests", id],
-    queryFn: () => getServiceRequests(id),
-    retry: false,
-  });
-  const hasServiceRequest = (serviceRequestsQuery.data ?? []).length > 0;
 
 
   const obs = vitalsQuery.data ?? [];
@@ -257,14 +250,6 @@ function PatientDetailPage() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {hasServiceRequest && (
-              <Button asChild>
-                <Link to="/ambulance/patient/$id" params={{ id }}>
-                  <Ambulance className="size-4" />
-                  Ambulance
-                </Link>
-              </Button>
-            )}
             <Button variant="outline" asChild>
               <Link to="/">
                 <ArrowLeft className="size-4" />
