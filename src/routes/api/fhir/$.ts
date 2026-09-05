@@ -44,6 +44,7 @@ async function proxy({ request, params }: { request: Request; params: { _splat?:
 }
 
 export const Route = createFileRoute("/api/fhir/$")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       GET: proxy,
