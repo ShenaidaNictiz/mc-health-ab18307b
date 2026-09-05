@@ -255,12 +255,23 @@ function PatientDetailPage() {
               <p className="text-sm text-muted-foreground">Patient record from your FHIR R4 server</p>
             </div>
           </div>
-          <Button variant="outline" asChild>
-            <Link to="/">
-              <ArrowLeft className="size-4" />
-              Back to list
-            </Link>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {hasServiceRequest && (
+              <Button asChild>
+                <Link to="/ambulance/patient/$id" params={{ id }}>
+                  <Ambulance className="size-4" />
+                  Ambulance
+                </Link>
+              </Button>
+            )}
+            <Button variant="outline" asChild>
+              <Link to="/">
+                <ArrowLeft className="size-4" />
+                Back to list
+              </Link>
+            </Button>
+          </div>
+
         </div>
       </header>
 
