@@ -76,7 +76,9 @@ function AmbulanceHandoverPage() {
         .filter((v): v is string => !!v && v.trim().length > 0),
     ),
   ];
-  const documents = documentReferenceLinks(serviceRequests);
+  const documents = [
+    ...new Map(documentReferenceLinks(serviceRequests).map((d) => [d.id, d])).values(),
+  ];
 
 
   return (
