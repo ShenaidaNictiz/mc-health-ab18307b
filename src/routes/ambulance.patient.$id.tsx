@@ -55,6 +55,19 @@ function AmbulanceHandoverPage() {
   });
   const patient = patientQuery.data;
 
+  const serviceQuery = useQuery({
+    queryKey: ["service-requests", id],
+    queryFn: () => getServiceRequests(id),
+    retry: false,
+  });
+  const serviceRequests = serviceQuery.data ?? [];
+  const reasons = serviceRequests.flatMap((sr) => sr.reasonCode ?? []);
+  const instructions = serviceRequests
+    .map((sr) => sr.patientInstruction)
+    .filter((v): v is string => !!v && v.trim().length > 0);
+  const documents = documentReferenceLinks(serviceRequests);
+
+
   return (
     <main className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
