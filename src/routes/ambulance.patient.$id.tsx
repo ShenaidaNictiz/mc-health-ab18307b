@@ -157,7 +157,7 @@ function AmbulanceHandoverPage() {
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Hulpvraag</p>
                 <p className="mt-1 font-medium">
-                  {reasons.length ? reasons.map((r) => conceptText(r)).join(", ") : "—"}
+                  {reasons.length ? reasons.join(", ") : "—"}
                 </p>
               </div>
               <div>
