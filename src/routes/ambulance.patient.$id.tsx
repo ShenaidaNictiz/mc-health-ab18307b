@@ -61,11 +61,24 @@ function AmbulanceHandoverPage() {
     retry: false,
   });
   const serviceRequests = serviceQuery.data ?? [];
-  const reasons = serviceRequests.flatMap((sr) => sr.reasonCode ?? []);
-  const instructions = serviceRequests
-    .map((sr) => sr.patientInstruction)
-    .filter((v): v is string => !!v && v.trim().length > 0);
-  const documents = documentReferenceLinks(serviceRequests);
+  const reasons = [
+    ...new Set(
+      serviceRequests
+        .flatMap((sr) => sr.reasonCode ?? [])
+        .map((r) => conceptText(r))
+        .filter((v) => v.trim().length > 0),
+    ),
+  ];
+  const instructions = [
+    ...new Set(
+      serviceRequests
+        .map((sr) => sr.patientInstruction)
+        .filter((v): v is string => !!v && v.trim().length > 0),
+    ),
+  ];
+  const documents = [
+    ...new Map(documentReferenceLinks(serviceRequests).map((d) => [d.id, d])).values(),
+  ];
 
 
   return (
@@ -144,7 +157,7 @@ function AmbulanceHandoverPage() {
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Hulpvraag</p>
                 <p className="mt-1 font-medium">
-                  {reasons.length ? reasons.map((r) => conceptText(r)).join(", ") : "—"}
+                  {reasons.length ? reasons.join(", ") : "—"}
                 </p>
               </div>
               <div>
