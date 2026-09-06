@@ -1,12 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ArrowLeft, Ambulance } from "lucide-react";
+import { AlertCircle, ArrowLeft, Ambulance, FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { fullName, getPatient } from "@/lib/fhir";
+import {
+  conceptText,
+  documentReferenceLinks,
+  fullName,
+  getPatient,
+  getServiceRequests,
+} from "@/lib/fhir";
+
 
 export const Route = createFileRoute("/ambulance/patient/$id")({
   staticData: { sitemap: false },
