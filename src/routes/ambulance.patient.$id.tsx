@@ -61,10 +61,21 @@ function AmbulanceHandoverPage() {
     retry: false,
   });
   const serviceRequests = serviceQuery.data ?? [];
-  const reasons = serviceRequests.flatMap((sr) => sr.reasonCode ?? []);
-  const instructions = serviceRequests
-    .map((sr) => sr.patientInstruction)
-    .filter((v): v is string => !!v && v.trim().length > 0);
+  const reasons = [
+    ...new Set(
+      serviceRequests
+        .flatMap((sr) => sr.reasonCode ?? [])
+        .map((r) => conceptText(r))
+        .filter((v) => v.trim().length > 0),
+    ),
+  ];
+  const instructions = [
+    ...new Set(
+      serviceRequests
+        .map((sr) => sr.patientInstruction)
+        .filter((v): v is string => !!v && v.trim().length > 0),
+    ),
+  ];
   const documents = documentReferenceLinks(serviceRequests);
 
 
