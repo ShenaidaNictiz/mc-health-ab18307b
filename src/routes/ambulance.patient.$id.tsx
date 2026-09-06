@@ -1,12 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ArrowLeft, Ambulance } from "lucide-react";
+import { AlertCircle, ArrowLeft, Ambulance, FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { fullName, getPatient } from "@/lib/fhir";
+import {
+  conceptText,
+  documentReferenceLinks,
+  fullName,
+  getPatient,
+  getServiceRequests,
+} from "@/lib/fhir";
+
 
 export const Route = createFileRoute("/ambulance/patient/$id")({
   staticData: { sitemap: false },
@@ -47,6 +54,19 @@ function AmbulanceHandoverPage() {
     retry: false,
   });
   const patient = patientQuery.data;
+
+  const serviceQuery = useQuery({
+    queryKey: ["service-requests", id],
+    queryFn: () => getServiceRequests(id),
+    retry: false,
+  });
+  const serviceRequests = serviceQuery.data ?? [];
+  const reasons = serviceRequests.flatMap((sr) => sr.reasonCode ?? []);
+  const instructions = serviceRequests
+    .map((sr) => sr.patientInstruction)
+    .filter((v): v is string => !!v && v.trim().length > 0);
+  const documents = documentReferenceLinks(serviceRequests);
+
 
   return (
     <main className="min-h-screen bg-background">
@@ -108,7 +128,59 @@ function AmbulanceHandoverPage() {
             </div>
           )}
         </section>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold">Overdracht</h2>
+          {serviceQuery.isError && (
+            <Alert variant="destructive">
+              <AlertCircle className="size-4" />
+              <AlertTitle>Could not load handover details</AlertTitle>
+              <AlertDescription>{(serviceQuery.error as Error).message}</AlertDescription>
+            </Alert>
+          )}
+          {serviceQuery.isPending && <Skeleton className="h-32 w-full rounded-xl" />}
+          {!serviceQuery.isPending && !serviceQuery.isError && (
+            <div className="space-y-5 rounded-xl border border-border bg-card p-5">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Hulpvraag</p>
+                <p className="mt-1 font-medium">
+                  {reasons.length ? reasons.map((r) => conceptText(r)).join(", ") : "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Advies aan patient vanuit de ambulance
+                </p>
+                <p className="mt-1 whitespace-pre-line font-medium">
+                  {instructions.length ? instructions.join("\n") : "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Documenten</p>
+                {documents.length ? (
+                  <ul className="mt-2 space-y-1">
+                    {documents.map((doc) => (
+                      <li key={doc.id}>
+                        <Link
+                          to="/documentreference/$id"
+                          params={{ id: doc.id }}
+                          className="inline-flex items-center gap-2 font-medium text-primary underline underline-offset-4"
+                        >
+                          <FileText className="size-4" />
+                          {doc.display}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-1 font-medium">—</p>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
       </div>
+
     </main>
   );
 }

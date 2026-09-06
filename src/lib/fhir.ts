@@ -295,6 +295,12 @@ export function bloodPressureSeries(observations: FhirObservation[]): VitalPoint
 
 /* ---------- Service requests (ambulance handover) ---------- */
 
+export interface FhirReference {
+  reference?: string;
+  display?: string;
+  type?: string;
+}
+
 export interface FhirServiceRequest {
   resourceType: "ServiceRequest";
   id?: string;
@@ -304,6 +310,40 @@ export interface FhirServiceRequest {
   authoredOn?: string;
   occurrenceDateTime?: string;
   subject?: { reference?: string };
+  reasonCode?: CodeableConcept[];
+  patientInstruction?: string;
+  supportingInfo?: FhirReference[];
+}
+
+export interface FhirDocumentReference {
+  resourceType: "DocumentReference";
+  id?: string;
+  description?: string;
+  type?: CodeableConcept;
+  date?: string;
+  content?: {
+    attachment?: { contentType?: string; data?: string; url?: string; title?: string };
+  }[];
+}
+
+export function getDocumentReference(id: string) {
+  return request<FhirDocumentReference>(`DocumentReference/${encodeURIComponent(id)}`);
+}
+
+/** DocumentReference references attached to a ServiceRequest's supportingInfo. */
+export function documentReferenceLinks(
+  requests: FhirServiceRequest[],
+): { id: string; display: string }[] {
+  const out = new Map<string, string>();
+  for (const sr of requests) {
+    for (const ref of sr.supportingInfo ?? []) {
+      const r = ref.reference ?? "";
+      if (!r.includes("DocumentReference") && ref.type !== "DocumentReference") continue;
+      const id = r.split("/").pop();
+      if (id) out.set(id, ref.display ?? `DocumentReference/${id}`);
+    }
+  }
+  return [...out.entries()].map(([id, display]) => ({ id, display }));
 }
 
 export async function getServiceRequests(id: string): Promise<FhirServiceRequest[]> {
@@ -312,6 +352,7 @@ export async function getServiceRequests(id: string): Promise<FhirServiceRequest
   );
   return bundleEntries(bundle, "ServiceRequest");
 }
+
 
 /** Which of the given patient ids have at least one ServiceRequest. */
 export async function getPatientsWithServiceRequests(ids: string[]): Promise<Set<string>> {
