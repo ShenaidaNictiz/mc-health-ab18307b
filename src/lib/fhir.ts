@@ -395,6 +395,33 @@ export async function resolveDocumentReferenceLinks(
   return resolved;
 }
 
+export interface ServiceRequestFormValues {
+  patientId: string;
+  reasonText: string;
+  patientInstruction: string;
+  occurrenceDateTime: string;
+}
+
+export function createServiceRequest(values: ServiceRequestFormValues) {
+  const resource: Record<string, unknown> = {
+    resourceType: "ServiceRequest",
+    status: "active",
+    intent: "order",
+    subject: { reference: `Patient/${values.patientId}` },
+    authoredOn: new Date().toISOString(),
+    reasonCode: [{ text: values.reasonText.trim() }],
+  };
+  if (values.patientInstruction.trim())
+    resource.patientInstruction = values.patientInstruction.trim();
+  if (values.occurrenceDateTime)
+    resource.occurrenceDateTime = new Date(values.occurrenceDateTime).toISOString();
+  return request<FhirServiceRequest>("ServiceRequest", {
+    method: "POST",
+    headers: { "Content-Type": "application/fhir+json" },
+    body: JSON.stringify(resource),
+  });
+}
+
 export async function getServiceRequests(id: string): Promise<FhirServiceRequest[]> {
   const bundle = await request<AnyBundle<FhirServiceRequest>>(
     `ServiceRequest?patient=${encodeURIComponent(id)}&_count=200`,

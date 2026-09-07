@@ -35,13 +35,13 @@ export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Patient Registry — FHIR R4 Patient Management" },
+      { title: "HAP — FHIR R4 Patient Management" },
       {
         name: "description",
         content:
           "Search, create and update patient records stored on your FHIR R4 server, with live reads and writes through the FHIR REST API.",
       },
-      { property: "og:title", content: "Patient Registry — FHIR R4 Patient Management" },
+      { property: "og:title", content: "HAP — FHIR R4 Patient Management" },
       {
         property: "og:description",
         content:
@@ -129,7 +129,7 @@ function PatientsPage() {
               <Stethoscope className="size-5" />
             </span>
             <div>
-              <h1 className="text-xl font-semibold tracking-tight">Patient Registry</h1>
+              <h1 className="text-xl font-semibold tracking-tight">HAP</h1>
               <p className="text-sm text-muted-foreground">Live records from your FHIR R4 server</p>
             </div>
           </div>
