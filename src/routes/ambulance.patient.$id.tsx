@@ -8,10 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   conceptText,
-  documentReferenceLinks,
   fullName,
   getPatient,
   getServiceRequests,
+  resolveDocumentReferenceLinks,
 } from "@/lib/fhir";
 
 
@@ -76,9 +76,13 @@ function AmbulanceHandoverPage() {
         .filter((v): v is string => !!v && v.trim().length > 0),
     ),
   ];
-  const documents = [
-    ...new Map(documentReferenceLinks(serviceRequests).map((d) => [d.id, d])).values(),
-  ];
+  const documentsQuery = useQuery({
+    queryKey: ["service-request-documents", id, serviceRequests.length],
+    queryFn: () => resolveDocumentReferenceLinks(id, serviceRequests),
+    enabled: serviceRequests.length > 0,
+    retry: false,
+  });
+  const documents = [...new Map((documentsQuery.data ?? []).map((d) => [d.id, d])).values()];
 
 
   return (
