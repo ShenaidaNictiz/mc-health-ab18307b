@@ -8,10 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   conceptText,
-  documentReferenceLinks,
   fullName,
   getPatient,
   getServiceRequests,
+  resolveDocumentReferenceLinks,
 } from "@/lib/fhir";
 
 
