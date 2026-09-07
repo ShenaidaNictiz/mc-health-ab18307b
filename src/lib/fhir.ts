@@ -346,6 +346,55 @@ export function documentReferenceLinks(
   return [...out.entries()].map(([id, display]) => ({ id, display }));
 }
 
+/**
+ * Resolve supporting-info DocumentReference links to ids that actually exist on the server.
+ * Some bundles reference the source logical id (e.g. hg-Referral…) while the server stored the
+ * resource under a generated UUID. When the referenced id 404s, fall back to searching the
+ * patient's DocumentReferences and use the first match.
+ */
+export async function resolveDocumentReferenceLinks(
+  patientId: string,
+  requests: FhirServiceRequest[],
+): Promise<{ id: string; display: string }[]> {
+  const links = documentReferenceLinks(requests);
+  if (!links.length) return links;
+
+  let fallbackIds: string[] | null = null;
+  const loadFallback = async () => {
+    if (fallbackIds) return fallbackIds;
+    try {
+      const bundle = await request<AnyBundle<FhirDocumentReference>>(
+        `DocumentReference?patient=${encodeURIComponent(patientId)}&_count=50`,
+      );
+      fallbackIds = bundleEntries(bundle, "DocumentReference")
+        .map((d) => d.id)
+        .filter((id): id is string => !!id);
+    } catch {
+      fallbackIds = [];
+    }
+    return fallbackIds;
+  };
+
+  const resolved: { id: string; display: string }[] = [];
+  let fallbackIndex = 0;
+  for (const link of links) {
+    const exists = await getDocumentReference(link.id)
+      .then(() => true)
+      .catch(() => false);
+    if (exists) {
+      resolved.push(link);
+      continue;
+    }
+    const ids = await loadFallback();
+    const id = ids[fallbackIndex];
+    if (id) {
+      fallbackIndex += 1;
+      resolved.push({ id, display: link.display });
+    }
+  }
+  return resolved;
+}
+
 export async function getServiceRequests(id: string): Promise<FhirServiceRequest[]> {
   const bundle = await request<AnyBundle<FhirServiceRequest>>(
     `ServiceRequest?patient=${encodeURIComponent(id)}&_count=200`,
