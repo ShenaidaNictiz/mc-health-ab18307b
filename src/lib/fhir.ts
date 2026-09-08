@@ -412,9 +412,9 @@ export function createServiceRequest(values: ServiceRequestFormValues) {
     reasonCode: [{ text: values.reasonText.trim() }],
   };
   if (values.patientInstruction.trim())
-    resource.patientInstruction = values.patientInstruction.trim();
+    resource["patientInstruction"] = values.patientInstruction.trim();
   if (values.occurrenceDateTime)
-    resource.occurrenceDateTime = new Date(values.occurrenceDateTime).toISOString();
+    resource["occurrenceDateTime"] = new Date(values.occurrenceDateTime).toISOString();
   return request<FhirServiceRequest>("ServiceRequest", {
     method: "POST",
     headers: { "Content-Type": "application/fhir+json" },
